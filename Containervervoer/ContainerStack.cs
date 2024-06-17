@@ -12,9 +12,12 @@ namespace Containervervoer
 
         public int StackWeight { get; set; }
         public int StackCount { get; set; }
+
         private int totalWeight = 0;
 
-        public ContainerStack() { }
+        public ContainerStack() {
+            containers = new List<Container>();
+        }
         public ContainerStack(int stackWeight, int stackCount)
         {
             containers = new List<Container>();
@@ -22,43 +25,43 @@ namespace Containervervoer
             StackCount = stackCount;
         }
 
-        public void Add(Container container)
+        public bool Add(Container container)
         {
             if (IsValidToAdd(container))
             {
                 StackCount++;
                 containers.Add(container);
+                return true;
             }
             else
             {
-                throw new Exception("Kan de container niet toevoegen: de stack zou ongeldig worden.");
+                return false;
             }
         }
         public bool IsValidToAdd(Container container)
         {
-            StackWeight = GetTotalContainerWeight() + container.ContainerWeight;
-             
-            if (StackWeight > 120)
+            int totalWeight = GetTotalContainerWeight() + container.ContainerWeight;
+
+            if (containers.Count > 0)
+            {
+                totalWeight -= containers[0].ContainerWeight;
+            }
+
+            if (totalWeight > 120)
             {
                 return false;
             }
-            if (containers.Count > 0 && containers[0].ContainerType == Container.Type.Valuable)
+
+            if (containers.Count > 0)
             {
-                return false;
-            }
-            else if (containers.Count > 0 && containers[0].ContainerType == Container.Type.CoolableValuable)
-            {
-                return false;
+                Container.Type type = containers[0].ContainerType;
+                if (type == Container.Type.Valuable || type == Container.Type.CoolableValuable)
+                {
+                    return false;
+                }
             }
 
             return true;
-        }
-
-        public bool IsFull(Container container)
-        {
-
-            // Controleer of de hypothetische container kan worden toegevoegd
-            return !IsValidToAdd(container);
         }
 
         public int GetTotalContainerWeight()

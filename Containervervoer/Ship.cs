@@ -1,6 +1,7 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,16 +15,22 @@ namespace Containervervoer
         public int X { get; set; } = 3;
         public int MaxWeight { get; set; } = 300;
 
+        public int ContainerFAIL { get; set; }
+
         private int currentMiddle = 1;
         private int totalWeightLeft = 0;
         private int totalWeightRight = 0;
 
-        public Ship() 
-        { 
+        private int RowsLeft = 1;
+        private int RowsRight = 1;
+        private int SideWidth;
+
+        public Ship()
+        {
 
         }
 
-        public void CreateStacks() 
+        public void CreateStacks()
         {
             Layout = new ContainerStack[Y, X];
             for (int i = 0; i < Y; i++)
@@ -34,7 +41,7 @@ namespace Containervervoer
                 }
             }
         }
-        
+
         public void PrintLayout()
         {
             for (int yy = 0; yy < Y; yy++)
@@ -47,8 +54,27 @@ namespace Containervervoer
             }
         }
 
+        public void AddContainer(Container container)
+        {
+            bool Failed = false;
+            ContainerFAIL = 0;
+            RowsLeft = 0;
+            RowsRight = 0;
 
-        public int DecideY(int y, Container container)
+        Retry:
+            int Ypoint = DecideY(container);
+            int Xpoint = DecideX(container, Failed);
+
+            bool gelukt = Layout[Ypoint, Xpoint].Add(container);
+            if (!gelukt)
+            {
+                Failed = true;
+                ContainerFAIL++;
+                goto Retry;
+            }
+        }
+
+        public int DecideY(Container container)
         {
             // kijken of het gekoeld of waardevol is
             if (container.ContainerType == Container.Type.Coolable || container.ContainerType == Container.Type.CoolableValuable)
@@ -57,57 +83,77 @@ namespace Containervervoer
             }
             if (container.ContainerType == Container.Type.Valuable)
             {
-                return y - 1;
+                return Y - 1;
             }
-            if (currentMiddle >= y - 1)
+            if (currentMiddle >= Y - 1)
             {
                 currentMiddle = 1;
             }
             return currentMiddle++;
 
-
-
         }
 
-        public int DecideX(int x, Container container)
+        public int DecideX(Container container, bool Failed)
         {
-
-            // kijken of x even of oneven is (Wel of geen middenrij)
-
-            // verschil gewicht dat je hebt x0,2 gewicht recht + container gewicht - gewicht links kleiner dan getal x0.2
-            // als kleiner gewicht rechts, anders links
-            // evenwicht
-
             {
-                // Controleer of x even of oneven is
-                bool isEven = x % 2 == 0;
+                bool isEven = X % 2 == 0;
 
-                // Als x oneven is, betekent dit dat er een middelste rij is
                 if (!isEven)
                 {
-                    // Controleer of de middelste rij vol is
-                    if (Layout[Y / 2, x / 2].IsValidToAdd(container))
+                    if (Failed == false)
                     {
-                        // Als de middelste rij niet vol is, voeg de container dan toe aan de middelste rij
-                        return x / 2;
+                        if (Layout[Y / 2, X / 2].IsValidToAdd(container))
+                        {
+                            return X / 2;
+                        }
                     }
-                    else
+
+                    SideWidth = (X - 1) / 2;
+
+                    int Side = DecideSide(X, container);
+
+                    if (Side == 1)
                     {
-                        // Als de middelste rij vol is, voeg de container dan toe aan de lichtere kant (links of rechts)
-                        return DecideSide(x, container);
+                        if (ContainerFAIL >= Y)
+                        {
+                            RowsLeft++;
+                        }
+                        return SideWidth - RowsLeft; // links
                     }
+
+                    if (ContainerFAIL >= Y)
+                    {
+                        RowsRight++;
+                    }
+                    return SideWidth + RowsRight; // rechts
                 }
-                // Als x even is, betekent dit dat er geen middelste rij is
+
                 else
                 {
-                    // Voeg de container toe aan de lichtere kant (links of rechts)
-                    return DecideSide(x, container);
+                    SideWidth = X / 2;
+                    int Side = DecideSide(X, container);
+
+                    if (Side == 1)
+                    {
+                        if (ContainerFAIL >= Y)
+                        {
+                            RowsLeft++;
+                        }
+                        return SideWidth - RowsLeft; // links
+                    }
+
+                    if (ContainerFAIL >= Y)
+                    {
+                        RowsRight++;
+                    }
+                    return SideWidth + (RowsRight - 1); // rechts
                 }
             }
         }
 
         public int DecideSide(int x, Container container)
         {
+
             // Bereken het totale gewicht aan elke kant
             totalWeightLeft = CalculateTotalWeight(0, x / 2);
             totalWeightRight = CalculateTotalWeight((x / 2) + 1, x);
@@ -115,12 +161,12 @@ namespace Containervervoer
             // Als het gewicht aan de linkerkant minder is, voeg de container dan aan de linkerkant toe
             if (totalWeightLeft <= totalWeightRight)
             {
-                return 0;
+                return 1;
             }
             // Anders, voeg de container aan de rechterkant toe
             else
             {
-                return x - 1;
+                return 0;
             }
         }
 
@@ -139,21 +185,13 @@ namespace Containervervoer
             return totalWeight;
         }
 
-
-        public void AddContainer(Container container)
+        public bool IsAtLeastHalfWeight()
         {
-            int Ypoint = DecideY(Y, container);
-            int Xpoint = DecideX(X, container);
+            int totalWeight = CalculateTotalWeight(0, X);
 
-            Layout[Ypoint, Xpoint].Add(container);
+            return totalWeight >= (0.5 * MaxWeight);
         }
 
 
-        //public bool IsBalanced()
-        //{
-        //    int totalWeightLeft = 0;
-        //    int totalWeightRight = 0;
-
-        //}
     }
 }
