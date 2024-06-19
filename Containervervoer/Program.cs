@@ -14,6 +14,7 @@ namespace Containervervoer
         {
             {
                 List<Container> containers = new List<Container>();
+
                 containers.Add(new Container(Container.Type.Normal, 30));
                 containers.Add(new Container(Container.Type.Normal, 30));
                 containers.Add(new Container(Container.Type.Coolable, 30));
@@ -33,6 +34,18 @@ namespace Containervervoer
                 containers.Add(new Container(Container.Type.CoolableValuable, 30));
                 containers.Add(new Container(Container.Type.Coolable, 30));
                 containers.Add(new Container(Container.Type.Normal, 30));
+
+                containers.Add(new Container(Container.Type.Normal, 30));
+                containers.Add(new Container(Container.Type.Normal, 30));
+                containers.Add(new Container(Container.Type.Normal, 30));
+                containers.Add(new Container(Container.Type.Normal, 30));
+                containers.Add(new Container(Container.Type.Normal, 30));
+                containers.Add(new Container(Container.Type.Coolable, 30));
+                containers.Add(new Container(Container.Type.Coolable, 30));
+                containers.Add(new Container(Container.Type.CoolableValuable, 30));
+                containers.Add(new Container(Container.Type.Valuable, 30));
+
+
 
 
 
@@ -45,7 +58,7 @@ namespace Containervervoer
                     ship.AddContainer(container);
                 }
 
-                ship.PrintLayout();
+                ship.PrintLayoutandCheckWeight();
 
 
             }

@@ -72,7 +72,6 @@ namespace Containervervoer
             {
                 totalContainerWeight += container.ContainerWeight;
 
-                //Console.WriteLine(totalContainerWeight);
             }
             return totalContainerWeight;
         }
@@ -83,7 +82,6 @@ namespace Containervervoer
             {
                 totalWeight += container.ContainerWeight;
 
-                //Console.WriteLine(totalWeight);
             }
             return totalWeight;
         }

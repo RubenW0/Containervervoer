@@ -12,7 +12,7 @@ namespace Containervervoer
 
         public ContainerStack[,] Layout { get; set; }
         public int Y { get; set; } = 4;
-        public int X { get; set; } = 3;
+        public int X { get; set; } = 4;
         public int MaxWeight { get; set; } = 300;
 
         public int ContainerFAIL { get; set; }
@@ -22,8 +22,12 @@ namespace Containervervoer
         private int totalWeightRight = 0;
 
         private int RowsLeft = 1;
-        private int RowsRight = 1;
+        private int RowsRight = 0;
         private int SideWidth;
+
+        private int Result;
+
+        private int lastAddedSide = 0; // 0 voor rechts, 1 voor links
 
         public Ship()
         {
@@ -42,8 +46,14 @@ namespace Containervervoer
             }
         }
 
-        public void PrintLayout()
+        public void PrintLayoutandCheckWeight()
         {
+            if (!IsAtLeastHalfWeight())
+            {
+                throw new Exception("Minder dan 50% van het maximumgewicht is benut.");
+            }
+
+
             for (int yy = 0; yy < Y; yy++)
             {
                 for (int xx = 0; xx < X; xx++)
@@ -58,20 +68,23 @@ namespace Containervervoer
         {
             bool Failed = false;
             ContainerFAIL = 0;
-            RowsLeft = 0;
-            RowsRight = 0;
+
+
+
 
         Retry:
             int Ypoint = DecideY(container);
             int Xpoint = DecideX(container, Failed);
 
-            bool gelukt = Layout[Ypoint, Xpoint].Add(container);
-            if (!gelukt)
+
+            bool succeed = Layout[Ypoint, Xpoint].Add(container);
+            if (!succeed)
             {
                 Failed = true;
                 ContainerFAIL++;
                 goto Retry;
             }
+
         }
 
         public int DecideY(Container container)
@@ -98,7 +111,7 @@ namespace Containervervoer
             {
                 bool isEven = X % 2 == 0;
 
-                if (!isEven)
+                if (!isEven) // oneven
                 {
                     if (Failed == false)
                     {
@@ -112,7 +125,7 @@ namespace Containervervoer
 
                     int Side = DecideSide(X, container);
 
-                    if (Side == 1)
+                    if (Side == 1) // links toevoegen
                     {
                         if (ContainerFAIL >= Y)
                         {
@@ -121,32 +134,65 @@ namespace Containervervoer
                         return SideWidth - RowsLeft; // links
                     }
 
-                    if (ContainerFAIL >= Y)
+                    if (ContainerFAIL >= Y) // rechts toevoegen
                     {
                         RowsRight++;
                     }
                     return SideWidth + RowsRight; // rechts
                 }
 
-                else
+                else // even
                 {
                     SideWidth = X / 2;
                     int Side = DecideSide(X, container);
+                    int attempts = 0;
 
-                    if (Side == 1)
+                    while (true)
                     {
-                        if (ContainerFAIL >= Y)
+                        if (attempts++ > X * Y) 
                         {
-                            RowsLeft++;
+                            throw new Exception("Het was niet mogelijk om de container toe te voegen.");
                         }
-                        return SideWidth - RowsLeft; // links
+
+                        if (Side == 1) //links toevoegen
+                        {
+                            if (ContainerFAIL >= Y)
+                            {
+                                RowsLeft = (X / 2) - RowsLeft; 
+                                RowsLeft++;
+                            }
+                            int Result = SideWidth - RowsLeft;
+                            if (Result < 0 || Result >= X)
+                            {
+                                Side = 0; // Probeer aan de rechterkant toe te voegen
+                                continue;
+                            }
+                            else
+                            {
+                                return Result; // links
+                            }
+                        }
+
+                        if (Side == 0) // rechts toevoegen
+                        {
+                            if (ContainerFAIL >= Y)
+                            {
+                                RowsRight = (X / 2) + RowsRight; 
+                                RowsRight++;
+                            }
+                            int Result = SideWidth + RowsRight;
+                            if (Result < 0 || Result >= X)
+                            {
+                                Side = 1; // Probeer aan linkerkant toe te voegen
+                                continue;
+                            }
+                            else
+                            {
+                                return Result; // rechts
+                            }
+                        }
                     }
 
-                    if (ContainerFAIL >= Y)
-                    {
-                        RowsRight++;
-                    }
-                    return SideWidth + (RowsRight - 1); // rechts
                 }
             }
         }
@@ -154,17 +200,16 @@ namespace Containervervoer
         public int DecideSide(int x, Container container)
         {
 
-            // Bereken het totale gewicht aan elke kant
             totalWeightLeft = CalculateTotalWeight(0, x / 2);
             totalWeightRight = CalculateTotalWeight((x / 2) + 1, x);
 
-            // Als het gewicht aan de linkerkant minder is, voeg de container dan aan de linkerkant toe
-            if (totalWeightLeft <= totalWeightRight)
+            // voeg de container dan aan de linkerkant toe
+            if (totalWeightLeft < totalWeightRight)
             {
                 return 1;
             }
-            // Anders, voeg de container aan de rechterkant toe
-            else
+            // voeg de container aan de rechterkant toe
+            else if (totalWeightRight < totalWeightLeft) { }
             {
                 return 0;
             }
@@ -172,6 +217,7 @@ namespace Containervervoer
 
         public int CalculateTotalWeight(int startX, int endX)
         {
+
             int totalWeight = 0;
 
             for (int i = 0; i < Y; i++)
@@ -187,9 +233,11 @@ namespace Containervervoer
 
         public bool IsAtLeastHalfWeight()
         {
-            int totalWeight = CalculateTotalWeight(0, X);
+            int totalWeightContainers = CalculateTotalWeight(0, X);
 
-            return totalWeight >= (0.5 * MaxWeight);
+            return totalWeightContainers >= (0.5 * MaxWeight);
+
+
         }
 
 
