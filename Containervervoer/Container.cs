@@ -10,10 +10,10 @@ namespace Containervervoer
     {
         public enum Type
         {
-            Normal,
-            Valuable,
-            Coolable,
-            CoolableValuable
+            Normal = 1,
+            Valuable = 2,
+            Coolable = 3,
+            CoolableValuable = 4
         }
 
         public Type ContainerType { get; set; }

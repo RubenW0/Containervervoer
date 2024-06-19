@@ -8,14 +8,15 @@ namespace Containervervoer
 {
     public class ContainerStack
     {
-        private List<Container> containers;
+        public List<Container> containers;
 
         public int StackWeight { get; set; }
         public int StackCount { get; set; }
 
         private int totalWeight = 0;
 
-        public ContainerStack() {
+        public ContainerStack()
+        {
             containers = new List<Container>();
         }
         public ContainerStack(int stackWeight, int stackCount)
@@ -30,7 +31,16 @@ namespace Containervervoer
             if (IsValidToAdd(container))
             {
                 StackCount++;
-                containers.Add(container);
+                // Als de container waardevol is, voeg deze dan toe aan het einde van de lijst
+                if (container.ContainerType == Container.Type.Valuable || container.ContainerType == Container.Type.CoolableValuable)
+                {
+                    containers.Add(container);
+                }
+                else
+                {
+                    // Voeg niet-waardevolle containers toe aan het begin van de lijst
+                    containers.Insert(0, container);
+                }
                 return true;
             }
             else

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -11,8 +12,8 @@ namespace Containervervoer
     {
 
         public ContainerStack[,] Layout { get; set; }
-        public int Y { get; set; } = 4;
-        public int X { get; set; } = 4;
+        public int Y { get; set; } = 5; // Breedte
+        public int X { get; set; } = 4; // Hoogte
         public int MaxWeight { get; set; } = 300;
 
         public int ContainerFAIL { get; set; }
@@ -25,9 +26,6 @@ namespace Containervervoer
         private int RowsRight = 0;
         private int SideWidth;
 
-        private int Result;
-
-        private int lastAddedSide = 0; // 0 voor rechts, 1 voor links
 
         public Ship()
         {
@@ -54,14 +52,14 @@ namespace Containervervoer
             }
 
 
-            for (int yy = 0; yy < Y; yy++)
-            {
-                for (int xx = 0; xx < X; xx++)
-                {
-                    Console.Write(Layout[yy, xx].StackCount + "\t");
-                }
-                Console.WriteLine();
-            }
+            //for (int xx = 0; xx < X; xx++)
+            //{
+            //    for (int yy = 0; yy < Y; yy++)
+            //    {
+            //        Console.Write(Layout[xx, yy].StackCount + "\t");
+            //    }
+            //    Console.WriteLine();
+            //}
         }
 
         public void AddContainer(Container container)
@@ -149,7 +147,7 @@ namespace Containervervoer
 
                     while (true)
                     {
-                        if (attempts++ > X * Y) 
+                        if (attempts++ > X * Y)
                         {
                             throw new Exception("Het was niet mogelijk om de container toe te voegen.");
                         }
@@ -158,7 +156,6 @@ namespace Containervervoer
                         {
                             if (ContainerFAIL >= Y)
                             {
-                                RowsLeft = (X / 2) - RowsLeft; 
                                 RowsLeft++;
                             }
                             int Result = SideWidth - RowsLeft;
@@ -177,7 +174,6 @@ namespace Containervervoer
                         {
                             if (ContainerFAIL >= Y)
                             {
-                                RowsRight = (X / 2) + RowsRight; 
                                 RowsRight++;
                             }
                             int Result = SideWidth + RowsRight;
@@ -209,7 +205,7 @@ namespace Containervervoer
                 return 1;
             }
             // voeg de container aan de rechterkant toe
-            else if (totalWeightRight < totalWeightLeft) { }
+            else
             {
                 return 0;
             }
@@ -240,6 +236,49 @@ namespace Containervervoer
 
         }
 
+        public void StartVisualizer()
+        {
+            string stack = "";
+            string weight = "";
+            for (int z = 0; z < Y; z++)
+            {
+                if (z > 0)
+                {
+                    stack += '/';
+                    weight += '/';
+                }
 
+                for (int x = 0; x < X; x++)
+                {
+                    if (x > 0)
+                    {
+                        stack += ",";
+                        weight += ",";
+                    }
+
+                    if (Layout[z, x].containers.Count > 0)
+                    {
+                        for (int y = 0; y < Layout[z, x].containers.Count; y++)
+                        {
+                            Container container = Layout[z, x].containers[y];
+
+                            stack += Convert.ToString((int)container.ContainerType);
+                            weight += Convert.ToString(container.ContainerWeight);
+                            if (y < (Layout[z, x].containers.Count - 1))
+                            {
+                                weight += "-";
+                            }
+                        }
+                    }
+                }
+            }
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = $"https://i872272.luna.fhict.nl/ContainerVisualizer/index.html?length=" + Y + "&width=" + X + "&stacks=" + stack + "&weights=" + weight + "",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
     }
-}
+ }

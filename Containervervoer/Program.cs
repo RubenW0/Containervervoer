@@ -15,15 +15,17 @@ namespace Containervervoer
             {
                 List<Container> containers = new List<Container>();
 
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Coolable, 30));
-                containers.Add(new Container(Container.Type.Valuable, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.CoolableValuable, 30));
-                containers.Add(new Container(Container.Type.Coolable, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+
 
                 containers.Add(new Container(Container.Type.Normal, 30));
                 containers.Add(new Container(Container.Type.Normal, 30));
@@ -35,21 +37,31 @@ namespace Containervervoer
                 containers.Add(new Container(Container.Type.Coolable, 30));
                 containers.Add(new Container(Container.Type.Normal, 30));
 
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Normal, 30));
-                containers.Add(new Container(Container.Type.Coolable, 30));
-                containers.Add(new Container(Container.Type.Coolable, 30));
-                containers.Add(new Container(Container.Type.CoolableValuable, 30));
-                containers.Add(new Container(Container.Type.Valuable, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Coolable, 30));
+                //containers.Add(new Container(Container.Type.Valuable, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.CoolableValuable, 30));
+                //containers.Add(new Container(Container.Type.Coolable, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
 
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Normal, 30));
+                //containers.Add(new Container(Container.Type.Coolable, 30));
+                //containers.Add(new Container(Container.Type.Coolable, 30));
+                //containers.Add(new Container(Container.Type.CoolableValuable, 30));
+                //containers.Add(new Container(Container.Type.Valuable, 30));
 
 
 
 
                 Ship ship = new Ship();
+                ContainerStack containerstack = new ContainerStack();
 
                 ship.CreateStacks();
 
@@ -57,8 +69,11 @@ namespace Containervervoer
                 {
                     ship.AddContainer(container);
                 }
+                
 
                 ship.PrintLayoutandCheckWeight();
+
+                ship.StartVisualizer();
 
 
             }
